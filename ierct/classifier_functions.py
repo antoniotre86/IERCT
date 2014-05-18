@@ -209,16 +209,18 @@ def feature_extractor(abstract, i):
     if not isstart: features['pos-tag(-1)'] = tok_prev['pos-tag']
     if not isend: features['pos-tag(+1)'] = tok_next['pos-tag']
     
-    # paragraph category
-    features['paragraph-cat'] = tok['paragraph_c']    
-    if features['paragraph-cat'] == 'None': 
-        features['paragraph-cat'] = paragraph_categories[int(i*
-													4/len(abstract))]    
-    
-    # paragraph label
-    features['paragraph-lab'] = f_paral(tok)    
-    if features['paragraph-lab'] == 'None':
-        features['paragraph-lab'] = features['paragraph-cat']    
+     # paragraph category
+#      features['paragraph-cat'] = tok['paragraph_c']    
+#      if features['paragraph-cat'] == 'None': 
+#          features['paragraph-cat'] = paragraph_categories[int(i*
+#  													4/len(abstract))]    
+    features['paragraph-cat'] = '' 
+     
+     # paragraph label
+#      features['paragraph-lab'] = f_paral(tok)    
+#      if features['paragraph-lab'] == 'None':
+#          features['paragraph-lab'] = features['paragraph-cat']    
+    features['paragraph-lab'] = ''
         
     # position in sentence
     features['position'] = f_pis(tok)
@@ -647,21 +649,21 @@ class Classifier:
             for l1 in ['OC','R1','R2']:
                 m.addConstr(Z[l1] - Z[l0] >= 1, name = 'con03_%s_%s' %(l0,l1))
         
-        #-- 04: R1/R2 in 'Results' or 'None'
-        if oc_con: 
-            L04 = ['OC','R1','R2']
-        else:
-            L04 = ['R1','R2']
-        for i,pc in pcs:
-            if pc not in Pc1:
-                for l in L04:
-                    m.addConstr(X[i,l] == 0, name = 'con04_%d' %i)    
-                
-        #-- 05: A1/A2/P in ['Background','Methods','Objective','None']
-        for i,pc in pcs:
-            if pc not in Pc0:
-                for l in ['A1','A2','P']:
-                    m.addConstr(X[i,l] == 0, name = 'con05_%d' %i)
+#         #-- 04: R1/R2 in 'Results' or 'None'
+#         if oc_con: 
+#             L04 = ['OC','R1','R2']
+#         else:
+#             L04 = ['R1','R2']
+#         for i,pc in pcs:
+#             if pc not in Pc1:
+#                 for l in L04:
+#                     m.addConstr(X[i,l] == 0, name = 'con04_%d' %i)    
+#                 
+#         #-- 05: A1/A2/P in ['Background','Methods','Objective','None']
+#         for i,pc in pcs:
+#             if pc not in Pc0:
+#                 for l in ['A1','A2','P']:
+#                     m.addConstr(X[i,l] == 0, name = 'con05_%d' %i)
         
         #-- 06
         m.addConstr((Z['A1'] - Z['P'])*Y[0] >= 0, name = 'con06_0')
@@ -674,10 +676,10 @@ class Classifier:
         #-- 08 R1 == R2
         m.addConstr(WL['R1'] == WL['R2'], name = 'con07')
         
-        #-- 09 OC in same sentence as R1
-        if oc_con:
-            m.addConstr((Q['OC'] - Q['R1'])*B[0] == 0, name = 'con09_0')
-            m.addConstr((Q['OC'] - Q['R2'])*B[1] == 0, name = 'con09_1')
+#         #-- 09 OC in same sentence as R1
+#         if oc_con:
+#             m.addConstr((Q['OC'] - Q['R1'])*B[0] == 0, name = 'con09_0')
+#             m.addConstr((Q['OC'] - Q['R2'])*B[1] == 0, name = 'con09_1')
         
         m.update()
         
