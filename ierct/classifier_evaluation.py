@@ -34,19 +34,22 @@ class HoldOut:
         #self.confmatrix = nltk.ConfusionMatrix(out_tags, test_set_tags)
         self.labels = set(test_set_tags)
         self.TP = {}        
+        self.AP = {}        
         self.precision = {}
+        self.recall = {}
         
         for lab in set(self.labels)-set('O'):
-            self.TP[lab] = len([1 for i,j in zip(test_set_tags,out_tags)
-                            if i==lab and i==j]) # True Positives
+            self.TP[lab] = len([1 for i,j in zip(test_set_tags,out_tags) if i==lab and i==j]) # True Positives
+            self.AP[lab] = len([1 for i in test_set_tags if i==lab]) # Actual Positives
         for lab in set(self.labels)-set('O'):
             self.precision[lab] = self.TP[lab]/len(test_set)
+            self.recall[lab] = self.TP[lab]/self.AP[lab]
         
     def tabulate_evaluation_measures(self):
         '''
         prints the precisions in a readable format
         '''
-        output = {'precision': self.precision}
+        output = {'precision': self.precision, 'recall': self.recall}
         print
         print '%-10s' % 'Labels',
         for lab in set(self.labels)-set('O'):
@@ -78,8 +81,10 @@ class CrossValidation:
         
         self.labels = set([i[1] for abst in data for i in abst])
         self.TP = {}
+        self.AP = {}
         for lab in self.labels:
             self.TP[lab] = 0
+            self.AP[lab] = 0
         indices = range(len(data))
         if verbose: print
         
@@ -106,19 +111,21 @@ class CrossValidation:
             out_tags = [tag for a in out for tag in a] 
             
             for lab in set(self.labels)-set('O'):
-                self.TP[lab] = self.TP[lab] + len([1 for i,j in zip(test_set_tags,out_tags)
-                        if i==lab and i==j]) # True Positives
+                self.TP[lab] += len([1 for i,j in zip(test_set_tags,out_tags) if i==lab and i==j])
+                self.AP[lab] += len([1 for i in test_set_tags if i==lab]) # True Positives
             if verbose: print '... time elapsed: %s --#\n' % str(datetime.datetime.fromtimestamp(time.time()-start)).split()[1]
             
         self.precision = {}
+        self.recall = {}
         for lab in set(self.labels)-set('O'):
             self.precision[lab] = self.TP[lab]/len(data)
+            self.recall[lab] = self.TP[lab]/self.AP[lab]
         
     def tabulate_evaluation_measures(self):
         '''
         prints the precisions in a readable format
         '''
-        output = {'precision': self.precision}
+        output = {'precision': self.precision, 'recall': self.recall}
         print '%-10s' % 'Labels',
         for lab in set(self.labels)-set('O'):
             print '%8s' % lab,
