@@ -7,6 +7,7 @@ Created on 15 Feb 2014
 
 
 from __future__ import division
+import numpy as np
 import time, datetime
 
 
@@ -88,6 +89,8 @@ class CrossValidation:
         indices = range(len(data))
         if verbose: print
         
+        fold_prec = []
+        
         start = time.time()
         for k in xrange(folds):
             if verbose: print '#-- Fold: %d ...' % (k+1)
@@ -110,9 +113,19 @@ class CrossValidation:
             out = classifier.batch_tagger(test_set, ex, dw, oc_con, verbose)
             out_tags = [tag for a in out for tag in a] 
             
+            fold_means_ = []
             for lab in set(self.labels)-set('O'):
                 self.TP[lab] += len([1 for i,j in zip(test_set_tags,out_tags) if i==lab and i==j])
                 self.AP[lab] += len([1 for i in test_set_tags if i==lab]) # True Positives
+                
+                TP_fold = len([1 for i,j in zip(test_set_tags,out_tags) if i==lab and i==j])
+                AP_fold = len([1 for i in test_set_tags if i==lab])
+                prec_fold = (TP_fold/AP_fold if AP_fold > 0 else 0)
+                
+                fold_means_.append(prec_fold)
+            
+            fold_prec.append(fold_means_)
+                
             if verbose: print '... time elapsed: %s --#\n' % str(datetime.datetime.fromtimestamp(time.time()-start)).split()[1]
             
         self.precision = {}
@@ -120,6 +133,18 @@ class CrossValidation:
         for lab in set(self.labels)-set('O'):
             self.precision[lab] = self.TP[lab]/len(data)
             self.recall[lab] = self.TP[lab]/self.AP[lab]
+            
+        print '-----------------------------------------------'
+        print 'CV standard deviations and confidence intervals'
+        print '-----------------------------------------------'
+        for n,lab in enumerate(set(self.labels)-set('O')):
+            cvsd = np.std([x[n] for x in fold_prec])
+            cvm = np.mean([x[n] for x in fold_prec])
+            print 'standard deviation for label %s = %0.5g' %(lab,cvsd)
+            print 'confidence interval 95%% = %0.3g - %0.3g' %(cvm - 1.96*cvsd, cvm + 1.96*cvsd)
+        print '-----------------------------------------------'
+            
+        print ''
         
     def tabulate_evaluation_measures(self):
         '''
