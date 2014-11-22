@@ -240,29 +240,32 @@ def main(args):
         test_set4 = dataset4[ntrain:]
         
         # vanilla
+        print 'vanilla'
         maxent40 = clf.Classifier_vanilla(clf.feature_extractor)
         maxent40.train(dev_set4,C=0.9)
         maxent40_ho = ce.HoldOut(maxent40,test_set4,excluded4[ntrain:])
         
-        maxent40_cv = ce.CrossValidation(maxent40,dev_set4,excluded4[:ntrain],10)
+        maxent40_cv = ce.CrossValidation(maxent40,dev_set4,excluded4[:ntrain],10,verbose = False)
         
         maxent40_out = maxent40.batch_tagger(test_set4, excluded4[ntrain:], dw=[0,0])  
         
         # full
+        print 'full'
         maxent41 = clf.Classifier(clf.feature_extractor)
         maxent41.train(dev_set4,C=0.9)
         maxent41_ho = ce.HoldOut(maxent41,test_set4,excluded4[ntrain:],dw=[5e-4,5e-4])
         
-        maxent41_cv = ce.CrossValidation(maxent41,dev_set4,excluded4[:ntrain],10,dw=[5e-4,5e-4],C=0.9)
+        maxent41_cv = ce.CrossValidation(maxent41,dev_set4,excluded4[:ntrain],10,dw=[5e-4,5e-4],C=0.9,verbose = False)
         
         maxent41_out = maxent41.batch_tagger(test_set4, excluded4[ntrain:], dw=[5e-4,5e-4])                            
         
         # zero
+        print 'zero'
         maxent42 = clf.Classifier_zero(clf.feature_extractor)
         maxent42.train(dev_set4,C=0.9)
         maxent42_ho = ce.HoldOut(maxent42,test_set4,excluded4[ntrain:],dw=[5e-4,5e-4])
         
-        maxent42_cv = ce.CrossValidation(maxent42,dev_set4,excluded4[:ntrain],10,dw=[5e-4,5e-4],C=0.9)
+        maxent42_cv = ce.CrossValidation(maxent42,dev_set4,excluded4[:ntrain],10,dw=[5e-4,5e-4],C=0.9,verbose = False)
         
         # save models
         if save_models:
