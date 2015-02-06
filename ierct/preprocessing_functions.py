@@ -11,6 +11,9 @@ from GeniaTagger import GeniaTagger
 import numpy as np
 from take_abstract import take_title
 
+import os
+os.chdir('c:/users/antonio/git/ierct/ierct')
+
 
 # imports
 #-  stopword list

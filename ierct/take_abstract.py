@@ -42,6 +42,7 @@ def take(pmid,path=r'.\data\retrieved'):
 def take_title(pmid):
     '''
     returns the title of the document registered with pmid
+    :param pmid:str
     '''
     
     url = 'http://www.ncbi.nlm.nih.gov/pubmed/'+pmid+'?report=xml&format=text'
