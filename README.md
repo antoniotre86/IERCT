@@ -77,4 +77,4 @@ Run demo.py to see a demo output.
 
 ## Reference ##
 
-..
+http://arxiv.org/abs/1509.05209
